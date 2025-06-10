@@ -48,19 +48,32 @@ public class Main {
 
             int prevX = playerLocationX;
             int prevY = playerLocationY;
+            boolean playerMoved = false; // Флаг для отслеживания реального движения
 
             switch (key) {
                 case 'w', 'ц':
-                    playerLocationY = Math.max(0, playerLocationY - 1);
+                    if (playerLocationY > 0) {
+                        playerLocationY--;
+                        playerMoved = true;
+                    }
                     break;
                 case 's', 'ы':
-                    playerLocationY = Math.min(playerArea.length - 1, playerLocationY + 1);
+                    if (playerLocationY < playerArea.length - 1) {
+                        playerLocationY++;
+                        playerMoved = true;
+                    }
                     break;
                 case 'a', 'ф':
-                    playerLocationX = Math.max(0, playerLocationX - 1);
+                    if (playerLocationX > 0) {
+                        playerLocationX--;
+                        playerMoved = true;
+                    }
                     break;
                 case 'd', 'в':
-                    playerLocationX = Math.min(playerArea[0].length - 1, playerLocationX + 1);
+                    if (playerLocationX < playerArea[0].length - 1) {
+                        playerLocationX++;
+                        playerMoved = true;
+                    }
                     break;
                 case 'q', 'й':
                     break gameLoop;
@@ -68,32 +81,34 @@ public class Main {
                     continue;
             }
 
-            // Проверка на столкновение с врагом
-            Enemy collidedEnemy = getEnemyAt(playerLocationX, playerLocationY);
-            if (collidedEnemy != null) {
-                playerHP--;
-                enemies.remove(collidedEnemy);
-                playerLocationX = prevX;
-                playerLocationY = prevY;
-            } else {
-                updatePlayerPosition();
-            }
+            // Проверка на столкновение с врагом только если игрок реально двинулся
+            if (playerMoved) {
+                Enemy collidedEnemy = getEnemyAt(playerLocationX, playerLocationY);
+                if (collidedEnemy != null) {
+                    playerHP--;
+                    enemies.remove(collidedEnemy);
+                    playerLocationX = prevX;
+                    playerLocationY = prevY;
+                } else {
+                    updatePlayerPosition();
+                }
 
-            // Счётчик ходов
-            turnCount++;
+                // Счётчик ходов увеличивается только при реальном движении
+                turnCount++;
 
-            // Враги двигаются раз в два хода
-            if (turnCount % 2 == 0) {
-                moveEnemies();
-            }
+                // Враги двигаются раз в два хода
+                if (turnCount % 2 == 0) {
+                    moveEnemies();
+                }
 
-            // Новые враги появляются каждые 5 ходов
-            if (turnCount % 5 == 0) {
-                spawnEnemy();
+                // Новые враги появляются каждые 5 ходов
+                if (turnCount % 5 == 0) {
+                    spawnEnemy();
+                }
             }
+            // Если игрок не двинулся (упёрся в стену), ход не засчитывается
         }
     }
-
 
     public static void generateEnemies(int count) {
         enemies.clear();
@@ -240,5 +255,4 @@ public class Main {
             }
         }
     }
-
 }
